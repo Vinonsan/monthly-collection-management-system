@@ -23,6 +23,46 @@ export default function Page() {
       name: 'Inputs',
       href: '/example/input',
       description: 'Preview input sizes, types, disabled, read-only, and error states.'
+    },
+    {
+      name: 'Date Input',
+      href: '/example/date-input',
+      description: 'Preview date input sizes, variants, disabled, and error states.'
+    },
+    {
+      name: 'Select',
+      href: '/example/select',
+      description: 'Preview single, multiple, searchable, disabled, and error selects.'
+    },
+    {
+      name: 'Toggle',
+      href: '/example/toggle',
+      description: 'Preview toggle colors, appearances, sizes, and disabled state.'
+    },
+    {
+      name: 'DropDown',
+      href: '/example/dropdown',
+      description: 'Preview dropdown menu variants, sizes, disabled items, and actions.'
+    },
+    {
+      name: 'Phone Input',
+      href: '/example/phone-input',
+      description: 'Preview phone input formatting, sizes, disabled, and error states.'
+    },
+    {
+      name: 'Modal',
+      href: '/example/modal',
+      description: 'Preview modal sizes, header, content, footer, and close actions.'
+    },
+    {
+      name: 'Data Table',
+      href: '/example/data-table',
+      description: 'Preview sortable columns, selectable rows, empty state, and custom cells.'
+    },
+    {
+      name: 'SVG Icons',
+      href: '/example/svg',
+      description: 'Preview the reusable SVG icon types and sizing options.'
     }
   ]
 

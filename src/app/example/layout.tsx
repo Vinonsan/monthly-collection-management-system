@@ -12,7 +12,15 @@ type SidebarLink = {
 const SIDEBAR_LINKS: SidebarLink[] = [
   { name: 'Badges', href: '/example/badge' },
   { name: 'Buttons', href: '/example/button' },
-  { name: 'Inputs', href: '/example/input' }
+  { name: 'Inputs', href: '/example/input' },
+  { name: 'Date Input', href: '/example/date-input' },
+  { name: 'Select', href: '/example/select' },
+  { name: 'Toggle', href: '/example/toggle' },
+  { name: 'DropDown', href: '/example/dropdown' },
+  { name: 'Phone Input', href: '/example/phone-input' },
+  { name: 'Modal', href: '/example/modal' },
+  { name: 'Data Table', href: '/example/data-table' },
+  { name: 'SVG Icons', href: '/example/svg' }
 ]
 
 export default function ExamplesLayout({ children }: { children: ReactNode }) {
@@ -20,7 +28,7 @@ export default function ExamplesLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-gray-950">
-      <aside className="w-64 shrink-0 border-r border-gray-200 bg-white shadow-sm">
+      <aside className="sticky top-0 h-screen w-64 shrink-0 overflow-y-auto border-r border-gray-200 bg-white shadow-sm">
         <div className="border-b px-6 py-5">
           <h1 className="text-lg font-semibold tracking-tight">UI Components</h1>
           <p className="mt-1 text-xs text-gray-500">Design system</p>

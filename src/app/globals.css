@@ -1,27 +1,517 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-theme-primary: #093C5D;
+  --color-theme-secondary: #000000;
+  --color-theme-accent: #4f8ef7;
+  --max-width-480: 480px;
+
+  /* Dark mode surface colors */
+  --color-dark-base: #1a1f2e;
+  --color-dark-surface: #1a1f2e;
+  --color-dark-elevated: #242938;
+  --color-dark-border: rgba(255, 255, 255, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-theme-primary: #2563eb;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Dark mode global defaults ────────────────────────────── */
+.dark {
+  color-scheme: dark;
+  background-color: #1a1f2e;
+  color: #e2e8f0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #f1f5f9;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.dark p,
+.dark span,
+.dark label {
+  color: inherit;
+}
+
+/* text-theme-primary shows accent blue in dark mode (e.g. sidebar labels, navbar brand) */
+.dark .text-theme-primary {
+  color: #4f8ef7;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-500/10;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded bg-gray-500/40;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500/60;
+}
+
+.sidebar ::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.sidebar ::-webkit-scrollbar-thumb {
+  @apply bg-transparent;
+}
+
+.sidebar:hover ::-webkit-scrollbar-track {
+  @apply bg-gray-500/10;
+}
+
+.sidebar:hover ::-webkit-scrollbar-thumb {
+  @apply bg-gray-500/40;
+}
+
+.sidebar:hover ::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500/60;
+}
+
+/* React Date Picker Styles */
+.date-input-wrapper .react-date-picker {
+  @apply relative inline-flex w-full;
+}
+
+/* Size-specific styles for DateInput */
+.date-input-wrapper.date-input-sm .react-date-picker__inputGroup {
+  @apply text-sm;
+}
+
+.date-input-wrapper.date-input-md .react-date-picker__inputGroup {
+  @apply text-base;
+}
+
+.date-input-wrapper.date-input-lg .react-date-picker__inputGroup {
+  @apply text-lg;
+}
+
+.date-input-wrapper.date-input-xl .react-date-picker__inputGroup {
+  @apply text-xl;
+}
+
+.date-input-wrapper .react-date-picker__wrapper {
+  @apply flex min-h-full w-full shrink-0 grow items-center;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup {
+  @apply grow px-0.5;
+  min-width: calc((4px * 3) + 0.54em * 8 + 0.217em * 2);
+  box-sizing: content-box;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup__divider {
+  @apply py-px;
+  white-space: pre;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup__input {
+  @apply relative h-full border-0 bg-transparent px-px;
+  min-width: 0.54em;
+  box-sizing: content-box;
+  -moz-appearance: textfield;
+  font: inherit;
+  line-height: inherit;
+  font-size: inherit;
+  outline: none !important;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup__input:focus {
+  @apply text-gray-900;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup__input::placeholder {
+  @apply text-gray-400 opacity-100;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup__input::-webkit-outer-spin-button,
+.date-input-wrapper .react-date-picker__inputGroup__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  @apply m-0;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup__input:invalid {
+  @apply bg-white;
+}
+
+.date-input-wrapper .react-date-picker__inputGroup__input--hasLeadingZero {
+  margin-left: -0.54em;
+  padding-left: calc(1px + 0.54em);
+}
+
+.date-input-wrapper .date-input-empty .react-date-picker .react-date-picker__inputGroup,
+.date-input-wrapper .date-input-empty .react-date-picker .react-date-picker__inputGroup__divider,
+.date-input-wrapper
+  .date-input-empty
+  .react-date-picker
+  .react-date-picker__inputGroup__leadingZero {
+  @apply pointer-events-none opacity-0;
+}
+
+.date-input-wrapper .react-date-picker__button {
+  @apply flex h-full min-h-full items-center border-0 bg-transparent p-1;
+}
+
+.date-input-wrapper .react-date-picker__button:enabled {
+  @apply cursor-pointer;
+}
+
+.date-input-wrapper .react-date-picker__button:enabled:hover .react-date-picker__button__icon,
+.date-input-wrapper .react-date-picker__button:enabled:focus .react-date-picker__button__icon {
+  stroke: #4f46e5;
+}
+
+.date-input-wrapper .react-date-picker__button:disabled {
+  @apply bg-gray-100;
+}
+
+.date-input-wrapper .react-date-picker__button svg {
+  display: inherit;
+}
+
+.date-input-wrapper .react-date-picker__calendar {
+  @apply absolute top-full left-0 z-10 mt-1 w-full max-w-screen rounded-lg border border-gray-200 bg-white;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.date-input-wrapper .react-date-picker__calendar--closed {
+  @apply hidden;
+}
+
+/* React Calendar Styles */
+.date-input-wrapper .react-calendar,
+.date-input-wrapper .react-calendar *,
+.date-input-wrapper .react-calendar *:before,
+.date-input-wrapper .react-calendar *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  @apply box-border;
+}
+
+.date-input-wrapper .react-calendar {
+  @apply w-full overflow-hidden rounded-lg border-0 bg-white;
+  line-height: 1.125em;
+}
+
+.date-input-wrapper .react-calendar__viewContainer {
+  @apply overflow-hidden;
+}
+
+.date-input-wrapper .react-calendar button {
+  @apply m-0 border-0 outline-none;
+  font-family: 'Lexend', sans-serif;
+}
+
+.date-input-wrapper .react-calendar button:enabled:hover {
+  @apply cursor-pointer;
+}
+
+.date-input-wrapper .react-calendar__navigation {
+  @apply mb-4 flex h-11 items-center border-b border-gray-200 px-2;
+}
+
+.date-input-wrapper .react-calendar__navigation button {
+  @apply mt-2 flex min-w-8 items-center justify-center bg-transparent font-medium text-gray-900;
+  font-size: 16px;
+}
+
+.date-input-wrapper .react-calendar__navigation button:enabled:hover,
+.date-input-wrapper .react-calendar__navigation button:enabled:focus {
+  @apply rounded bg-purple-50;
+}
+
+.date-input-wrapper .react-calendar__navigation button[disabled] {
+  @apply bg-gray-100 opacity-50;
+}
+
+.date-input-wrapper .react-calendar__month-view {
+  @apply h-auto;
+}
+
+.date-input-wrapper .react-calendar__month-view__weekdays {
+  @apply mb-2 flex-shrink-0 px-2 text-center font-bold uppercase;
+  font-size: 0.75em;
+}
+
+.date-input-wrapper .react-calendar__month-view__weekdays__weekday {
+  @apply p-2 font-bold text-gray-900;
+  letter-spacing: 0.5px;
+}
+
+.date-input-wrapper .react-calendar__month-view__weekdays__weekday abbr {
+  @apply no-underline;
+}
+
+.date-input-wrapper .react-calendar__month-view__days {
+  @apply px-2 pb-2;
+}
+
+.date-input-wrapper .react-calendar__month-view__days__day--neighboringMonth {
+  @apply text-gray-400 opacity-50;
+}
+
+.date-input-wrapper .react-calendar__year-view .react-calendar__tile,
+.date-input-wrapper .react-calendar__decade-view .react-calendar__tile,
+.date-input-wrapper .react-calendar__century-view .react-calendar__tile {
+  @apply px-2 py-8;
+}
+
+.date-input-wrapper .react-calendar__tile {
+  @apply max-w-full rounded bg-transparent px-1.5 py-2.5 text-center font-normal text-gray-900 transition-all;
+  line-height: 16px;
+  font-size: 0.75em;
+}
+
+.date-input-wrapper .react-calendar__tile:disabled {
+  @apply bg-gray-100 text-gray-400 opacity-50;
+}
+
+.date-input-wrapper .react-calendar__tile:enabled:hover,
+.date-input-wrapper .react-calendar__tile:enabled:focus {
+  @apply bg-purple-50 text-indigo-600;
+}
+
+.date-input-wrapper .react-calendar__tile--now {
+  @apply bg-purple-50 font-medium text-indigo-600;
+}
+
+.date-input-wrapper .react-calendar__tile--now:enabled:hover,
+.date-input-wrapper .react-calendar__tile--now:enabled:focus {
+  @apply bg-purple-50 text-indigo-600;
+}
+
+.date-input-wrapper .react-calendar__tile--hasActive {
+  @apply bg-indigo-600 text-white;
+}
+
+.date-input-wrapper .react-calendar__tile--hasActive:enabled:hover,
+.date-input-wrapper .react-calendar__tile--hasActive:enabled:focus {
+  @apply bg-indigo-600 text-white;
+}
+
+.date-input-wrapper .react-calendar__tile--active {
+  @apply bg-indigo-600 font-semibold text-white;
+}
+
+.date-input-wrapper .react-calendar__tile--active:enabled:hover,
+.date-input-wrapper .react-calendar__tile--active:enabled:focus {
+  @apply bg-indigo-600 text-white;
+}
+
+.date-input-wrapper .react-calendar__navigation__label {
+  @apply flex-grow px-3 text-center font-semibold text-gray-900;
+  font-size: 16px;
+}
+
+.date-input-wrapper .react-calendar__navigation__arrow {
+  @apply rounded p-2 text-gray-900 transition-all;
+  font-size: 18px;
+}
+
+.date-input-wrapper .react-calendar__navigation__arrow:hover {
+  @apply bg-purple-50 text-indigo-600;
+}
+
+.date-input-wrapper .react-calendar__navigation__prev2-button,
+.date-input-wrapper .react-calendar__navigation__next2-button {
+  font-size: 14px;
+}
+
+/* Weekend styling */
+.date-input-wrapper
+  .react-calendar__month-view__days__day--weekend:not(
+    .react-calendar__month-view__days__day--neighboringMonth
+  ),
+.date-input-wrapper
+  .react-calendar__tile--weekend:not(.react-calendar__tile--disabled):not(
+    .react-calendar__month-view__days__day--neighboringMonth
+  ) {
+  color: #b3261e;
+}
+
+.date-input-wrapper .react-calendar__tile--weekend.react-calendar__tile--active {
+  @apply bg-indigo-600 text-white;
+}
+
+.date-input-wrapper .react-calendar__tile--weekend.react-calendar__tile--now {
+  color: #b3261e;
+  @apply bg-purple-50;
+}
+
+.date-input-wrapper
+  .react-calendar__tile--weekend.react-calendar__tile--now.react-calendar__tile--active {
+  @apply bg-indigo-600 text-white;
+}
+
+/* ============================================================
+   react-date-picker / react-calendar — dark mode overrides
+   ============================================================ */
+.dark .date-input-wrapper .react-date-picker__wrapper {
+  background-color: #242938;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0; /* slate-200 */
+}
+
+.dark .date-input-wrapper .react-date-picker__inputGroup__input {
+  color: #e2e8f0;
+  background: transparent;
+}
+
+.dark .date-input-wrapper .react-date-picker__inputGroup__divider,
+.dark .date-input-wrapper .react-date-picker__inputGroup__leadingZero {
+  color: #94a3b8; /* slate-400 */
+}
+
+.dark .date-input-wrapper .react-date-picker__button svg {
+  stroke: #94a3b8;
+}
+
+.dark .date-input-wrapper .react-calendar {
+  background-color: #1e2433;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+}
+
+.dark .date-input-wrapper .react-calendar__navigation button {
+  color: #e2e8f0;
+}
+
+.dark .date-input-wrapper .react-calendar__navigation button:enabled:hover,
+.dark .date-input-wrapper .react-calendar__navigation button:enabled:focus {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .date-input-wrapper .react-calendar__month-view__weekdays__weekday abbr {
+  color: #94a3b8;
+}
+
+.dark .date-input-wrapper .react-calendar__tile {
+  color: #e2e8f0;
+}
+
+.dark .date-input-wrapper .react-calendar__tile:enabled:hover,
+.dark .date-input-wrapper .react-calendar__tile:enabled:focus {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .date-input-wrapper .react-calendar__tile--now {
+  background-color: rgba(79, 142, 247, 0.15); /* accent/15 */
+}
+
+.dark .date-input-wrapper .react-calendar__tile--active {
+  background-color: #4f8ef7;
+  color: white;
+}
+
+.dark .date-input-wrapper .react-calendar__month-view__days__day--neighboringMonth {
+  color: #475569; /* slate-600 */
+}
+
+.dark .date-input-wrapper .react-date-picker__inputGroup__input {
+  color: rgb(243 244 246);
+  background: transparent;
+}
+
+.dark .date-input-wrapper .react-date-picker__inputGroup__divider,
+.dark .date-input-wrapper .react-date-picker__inputGroup__leadingZero {
+  color: rgb(156 163 175); /* gray-400 */
+}
+
+.dark .date-input-wrapper .react-date-picker__button svg {
+  stroke: rgb(156 163 175);
+}
+
+.dark .date-input-wrapper .react-calendar {
+  background-color: rgb(31 41 55);
+  border-color: rgb(75 85 99);
+  color: rgb(243 244 246);
+}
+
+.dark .date-input-wrapper .react-calendar__navigation button {
+  color: rgb(243 244 246);
+}
+
+.dark .date-input-wrapper .react-calendar__navigation button:enabled:hover,
+.dark .date-input-wrapper .react-calendar__navigation button:enabled:focus {
+  background-color: rgb(55 65 81); /* gray-700 */
+}
+
+.dark .date-input-wrapper .react-calendar__month-view__weekdays__weekday abbr {
+  color: rgb(156 163 175);
+}
+
+.dark .date-input-wrapper .react-calendar__tile {
+  color: rgb(243 244 246);
+}
+
+.dark .date-input-wrapper .react-calendar__tile:enabled:hover,
+.dark .date-input-wrapper .react-calendar__tile:enabled:focus {
+  background-color: rgb(55 65 81);
+}
+
+.dark .date-input-wrapper .react-calendar__tile--now {
+  background-color: rgb(55 65 81);
+}
+
+.dark .date-input-wrapper .react-calendar__tile--active {
+  background-color: #072049;
+  color: white;
+}
+
+.dark .date-input-wrapper .react-calendar__month-view__days__day--neighboringMonth {
+  color: rgb(107 114 128); /* gray-500 */
+}
+
+/* react-international-phone — dark mode overrides */
+.dark .react-international-phone-input {
+  background-color: #242938 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .react-international-phone-country-selector-button {
+  background-color: #1a1c1e !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark .react-international-phone-country-selector-dropdown {
+  background-color: #1a1c1e !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .react-international-phone-country-selector-dropdown__list-item {
+  background-color: #1a1c1e !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .react-international-phone-country-selector-dropdown__list-item:hover,
+.dark .react-international-phone-country-selector-dropdown__list-item--active {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

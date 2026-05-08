@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import Dashboard from './(auth)/_utils/components/Dashboard'
+import LayoutChildren from './(auth)/_utils/LayoutChildren'
 
 export default function Home() {
-  redirect("/example");
+  return (
+    <LayoutChildren>
+      <Dashboard />
+    </LayoutChildren>
+  )
 }

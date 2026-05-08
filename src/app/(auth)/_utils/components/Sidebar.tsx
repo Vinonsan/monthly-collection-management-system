@@ -25,7 +25,7 @@ const sidebarItems: SidebarItem[] = [
     href: '/',
     icon: 'dashboard'
   },
-    {
+  {
     id: 'collections',
     label: 'Collections',
     icon: 'wallet',
@@ -66,15 +66,24 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
   const activeParentIds = sidebarItems
     .filter((item) => isActivePath(item, pathname))
     .map((item) => item.id)
+  const activeParentId = activeParentIds[0] || null
 
-  const [openMenus, setOpenMenus] = useState<string[]>(activeParentIds)
+  const [openMenu, setOpenMenu] = useState<{ pathname: string; id: string | null }>({
+    pathname,
+    id: activeParentId
+  })
+  const openMenuId = openMenu.pathname === pathname ? openMenu.id : activeParentId
 
   const toggleMenu = (id: string) => {
-    setOpenMenus((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id]
-    )
+    setOpenMenu((current) => ({
+      pathname,
+      id: current.pathname === pathname && current.id === id ? null : id
+    }))
+  }
+
+  const handleDirectLinkClick = () => {
+    setOpenMenu({ pathname, id: null })
+    onClose?.()
   }
 
   const renderIcon = (icon: IconType | undefined, active: boolean) => {
@@ -95,7 +104,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
   const renderMenuItem = (item: SidebarItem) => {
     const hasChildren = Boolean(item.children?.length)
     const active = isActivePath(item, pathname)
-    const expanded = openMenus.includes(item.id) || active
+    const expanded = openMenuId === item.id
 
     if (hasChildren) {
       return (
@@ -169,7 +178,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
       <li key={ item.id }>
         <Link
           href={ item.href || '#' }
-          onClick={ onClose }
+          onClick={ handleDirectLinkClick }
           className={ [
             'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-300',
             active
@@ -191,33 +200,22 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
           type="button"
           aria-label="Close sidebar overlay"
           onClick={ onClose }
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          className="fixed bottom-0 left-0 right-0 top-[65px] z-40 bg-black/40 backdrop-blur-sm lg:hidden"
         />
       ) }
 
       <aside
         className={ [
-          'fixed inset-y-0 left-0 z-50 w-75 transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
+          'fixed bottom-0 left-0 top-[65px] z-50 w-75 transition-transform duration-300 lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         ].join(' ') }
       >
         <div className="flex h-full flex-col border-r border-slate-200 bg-white px-4 py-2 text-slate-950 shadow-2xl">
-          <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-theme-primary/5 px-4 py-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-theme-primary">
-                Monthly Collection
-              </p>
-              <h2 className="mt-1 text-lg font-bold">Management System</h2>
-            </div>
-
-            <button
-              type="button"
-              onClick={ onClose }
-              className="rounded-xl p-2 text-slate-500 hover:bg-theme-primary/10 hover:text-theme-primary lg:hidden"
-              aria-label="Close sidebar"
-            >
-              <SVG type="close" width={ 18 } height={ 18 } />
-            </button>
+          <div className="mb-6 rounded-md bg-theme-primary/10 px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-theme-primary">
+              Main Menu
+            </p>
+            <h2 className="mt-1 text-lg font-bold text-slate-950">Management</h2>
           </div>
 
           <nav className="sidebar flex-1 overflow-y-auto pr-1 no-scrollbar ">

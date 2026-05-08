@@ -13,13 +13,13 @@ const LayoutChildren = (props: LayoutChildrenProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen bg-white text-black">
-      <Sidebar isOpen={ isSidebarOpen } onClose={ () => setIsSidebarOpen(false) } />
+    <div className="flex min-h-screen flex-col bg-white text-black">
+      <Nav onMenuClick={ () => setIsSidebarOpen(true) } />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Nav onMenuClick={ () => setIsSidebarOpen(true) } />
+      <div className="flex min-h-0 flex-1">
+        <Sidebar isOpen={ isSidebarOpen } onClose={ () => setIsSidebarOpen(false) } />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="min-w-0 flex-1 px-6 py-4 lg:ml-75">
           { children }
         </main>
       </div>

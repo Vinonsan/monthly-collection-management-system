@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import SVG, { type IconType } from '@/src/components/Svg'
+import { authCookieName } from '@/src/app/_utils/authDevConfig'
 
 interface SidebarItem {
   id: string
@@ -62,6 +63,7 @@ const isActivePath = (item: SidebarItem, pathname: string): boolean => {
 
 const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
   const pathname = usePathname()
+  const router = useRouter()
 
   const activeParentIds = sidebarItems
     .filter((item) => isActivePath(item, pathname))
@@ -84,6 +86,11 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
   const handleDirectLinkClick = () => {
     setOpenMenu({ pathname, id: null })
     onClose?.()
+  }
+
+  const handleLogout = () => {
+    document.cookie = `${authCookieName}=; path=/; max-age=0; samesite=lax`
+    router.push('/login')
   }
 
   const renderIcon = (icon: IconType | undefined, active: boolean) => {
@@ -227,6 +234,7 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
           <div className="mt-5 border-t border-slate-200 pt-4">
             <button
               type="button"
+              onClick={ handleLogout }
               className="flex w-full items-center justify-center rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition-all duration-300 hover:border-theme-primary/20 hover:bg-theme-primary/5 hover:text-theme-primary"
             >
               Logout

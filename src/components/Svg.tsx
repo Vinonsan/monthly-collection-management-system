@@ -9,6 +9,8 @@ export type IconType =
   | 'edit'
   | 'delete'
   | 'close'
+  | 'eye'
+  | 'eye-close'
   | 'dashboard'
   | 'users'
   | 'wallet'
@@ -236,6 +238,63 @@ const SVG = (props: ISVGProps) => {
             d="M5 5l10 10M15 5L5 15"
             stroke="currentColor"
             strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      )
+
+    case 'eye':
+      return (
+        <svg
+          className={ className }
+          width={ width || 18 }
+          height={ height || 18 }
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2.5 10s2.7-5 7.5-5 7.5 5 7.5 5-2.7 5-7.5 5-7.5-5-7.5-5z"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M10 12.3a2.3 2.3 0 100-4.6 2.3 2.3 0 000 4.6z"
+            stroke="currentColor"
+            strokeWidth="1.6"
+          />
+        </svg>
+      )
+
+    case 'eye-close':
+      return (
+        <svg
+          className={ className }
+          width={ width || 18 }
+          height={ height || 18 }
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3 3l14 14"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+          />
+          <path
+            d="M7.2 5.5A7.4 7.4 0 0110 5c4.8 0 7.5 5 7.5 5a12.1 12.1 0 01-2.2 2.8M12.2 14.5a7.7 7.7 0 01-2.2.5c-4.8 0-7.5-5-7.5-5a12.4 12.4 0 012.7-3.1"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8.4 8.4a2.3 2.3 0 003.2 3.2"
+            stroke="currentColor"
+            strokeWidth="1.6"
             strokeLinecap="round"
           />
         </svg>

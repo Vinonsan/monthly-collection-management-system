@@ -1,67 +1,99 @@
 'use client'
 
+import { type FormEvent, useState } from 'react'
 import Button from '@/src/components/Button'
 import Input from '@/src/components/Input'
 import Modal from '@/src/components/Modal'
 import Select from '@/src/components/Select'
+import { getFieldError, useFormValidation } from '@/src/lib/hooks/useFormValidation'
+import { collectorFormStatusOptions, emptyCollectorForm } from '../constants/collectors'
+import { collectorSchema } from '../constants/validationSchema'
 import type { CollectorForm } from '../types/collectors'
 
 interface CollectorModalProps {
   open: boolean
-  editingCollectorId: number | null
-  form: CollectorForm
+  isEditing: boolean
+  initialForm?: CollectorForm
   onClose: () => void
-  onSubmit: () => void
-  onFormChange: (_form: CollectorForm) => void
+  onSubmit: (_form: CollectorForm) => void
 }
-
-const statusOptions = [
-  { id: 'Active', name: 'Active' },
-  { id: 'Inactive', name: 'Inactive' }
-]
 
 const CollectorModal = (props: CollectorModalProps) => {
   const {
     open,
-    editingCollectorId,
-    form,
+    isEditing,
+    initialForm = emptyCollectorForm,
     onClose,
-    onSubmit,
-    onFormChange
+    onSubmit
   } = props
+  const [form, setForm] = useState<CollectorForm>(initialForm)
+  const {
+    errors,
+    validateForm,
+    clearErrors
+  } = useFormValidation<CollectorForm>(collectorSchema)
+
+  const handleClose = () => {
+    setForm(emptyCollectorForm)
+    clearErrors()
+    onClose()
+  }
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (!validateForm(form)) return
+
+    onSubmit(form)
+    setForm(emptyCollectorForm)
+    clearErrors()
+  }
 
   return (
     <Modal
       open={ open }
-      title={ editingCollectorId ? 'Update Collector' : 'Add Collector' }
-      size="lg"
-      onClose={ onClose }
+      title={ isEditing ? 'Update Collector' : 'Add Collector' }
+      size="md"
+      onClose={ handleClose }
       footer={ (
         <>
-          <Button variant="secondary" appearance="outline" onClick={ onClose }>
-            Cancel
-          </Button>
-          <Button onClick={ onSubmit }>
-            { editingCollectorId ? 'Update Collector' : 'Add Collector' }
+          <Button type="submit" form="collector-form">
+            { isEditing ? 'Update Collector' : 'Add Collector' }
           </Button>
         </>
       ) }
     >
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input id="collector-no" label="Collector No" type="text" value={ form.collectorNo } onChange={ (value) => onFormChange({ ...form, collectorNo: String(value) }) } />
-        <Input id="collector-name" label="Collector Name" type="text" value={ form.name } onChange={ (value) => onFormChange({ ...form, name: String(value) }) } />
-        <Input id="collector-phone" label="Phone" type="text" value={ form.phone } onChange={ (value) => onFormChange({ ...form, phone: String(value) }) } />
-        <Input id="assigned-area" label="Assigned Area" type="text" value={ form.assignedArea } onChange={ (value) => onFormChange({ ...form, assignedArea: String(value) }) } />
+      <form id="collector-form" className="grid gap-4 md:grid-cols-1" onSubmit={ handleSubmit }>
+        <Input
+          id="collector-name"
+          label="Collector Name"
+          type="text"
+          value={ form.name }
+          error={ getFieldError(errors, 'name') }
+          onChange={ (value) => setForm((current) => ({ ...current, name: String(value) })) }
+        />
+        <Input
+          id="collector-phone"
+          label="Phone"
+          type="text"
+          value={ form.phone }
+          error={ getFieldError(errors, 'phone') }
+          onChange={ (value) => setForm((current) => ({ ...current, phone: String(value) })) }
+        />
         <Select
           label="Status"
-          options={ statusOptions }
+          options={ collectorFormStatusOptions }
           labelKey="name"
           valueKey="id"
           value={ form.status }
-          onChange={ (value) => onFormChange({ ...form, status: value === 'Inactive' ? 'Inactive' : 'Active' }) }
+          error={ getFieldError(errors, 'status') }
+          onChange={ (value) => setForm((current) => ({
+            ...current,
+            status: value === 'Inactive' ? 'Inactive' : 'Active'
+          })) }
           position="bottom"
         />
-      </div>
+      </form>
     </Modal>
   )
 }

@@ -16,3 +16,11 @@ export const emptyCollectorForm: CollectorForm = {
   assignedArea: '',
   status: 'Active'
 }
+
+export const collectorStatusOptions = [
+  { id: 'all', name: 'All statuses' },
+  { id: 'Active', name: 'Active' },
+  { id: 'Inactive', name: 'Inactive' }
+]
+
+export const collectorFormStatusOptions = collectorStatusOptions.filter((option) => option.id !== 'all')

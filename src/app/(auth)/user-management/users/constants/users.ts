@@ -16,10 +16,9 @@ export const initialUsers: UserRow[] = [
 export const emptyUserForm: UserForm = {
   cardNo: '',
   name: '',
-  wardNo: 'Ward 01',
+  wardNo: '1',
   phone: '',
   address: '',
-  balance: 0,
+  balance: 0
 }
-
 

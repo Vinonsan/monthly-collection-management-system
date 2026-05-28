@@ -57,9 +57,9 @@ const variantTokens: Record<
   },
   success: {
     solid: {
-      bg: 'bg-green-600',
+      bg: 'bg-emerald-800',
       text: 'text-white',
-      border: 'border-2 border-green-100'
+      border: 'border-2 border-emerald-100'
     },
     outline: {
       bg: 'bg-green-50',
@@ -69,7 +69,7 @@ const variantTokens: Record<
   },
   danger: {
     solid: {
-      bg: 'bg-red-600',
+      bg: 'bg-red-800',
       text: 'text-white',
       border: 'border-2 border-red-100'
     },

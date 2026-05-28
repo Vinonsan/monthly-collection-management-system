@@ -209,13 +209,13 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
           type="button"
           aria-label="Close sidebar overlay"
           onClick={ onClose }
-          className="fixed bottom-0 left-0 right-0 top-[65px] z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          className="fixed bottom-0 left-0 right-0 top-16.25 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
         />
       ) }
 
       <aside
         className={ [
-          'fixed bottom-0 left-0 top-[65px] z-50 w-75 transition-transform duration-300 lg:translate-x-0',
+          'fixed bottom-0 left-0 top-16.25 z-50 w-75 transition-transform duration-300 lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         ].join(' ') }
       >

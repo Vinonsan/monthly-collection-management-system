@@ -42,7 +42,7 @@ const variantStyles: Record<ButtonVariant, Record<ButtonAppearance, string>> = {
       'border-transparent text-green-700 hover:bg-green-50'
   },
   danger: {
-    solid: 'bg-red-600 text-white border-red-600 hover:bg-red-700',
+    solid: 'bg-red-800 text-white  border-red-100 hover:bg-red-700',
     outline:
       'bg-transparent text-red-700 border-red-300 hover:bg-red-50',
     ghost:

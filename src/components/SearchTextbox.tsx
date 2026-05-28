@@ -1,6 +1,45 @@
 'use client'
 
+import { useState } from 'react'
 import SVG from './Svg'
+
+export type SearchTextboxFilterValue = string | number | (string | number)[] | null
+
+interface SearchTextboxFilter<TData> {
+  value: SearchTextboxFilterValue
+  match: (_item: TData, _value: SearchTextboxFilterValue) => boolean
+}
+
+export const useSearchTextbox = <TData,>(
+  data: TData[],
+  searchFields: ((_item: TData) => unknown)[],
+  filters: SearchTextboxFilter<TData>[] = []
+) => {
+  const [search, setSearch] = useState('')
+  const resetSearch = () => {
+    setSearch('')
+  }
+  const normalizedSearch = search.trim().toLowerCase()
+  const filteredData = data.filter((item) => {
+    const matchesSearch =
+      normalizedSearch.length === 0 ||
+      searchFields
+        .map((field) => field(item))
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedSearch)
+    const matchesFilters = filters.every((filter) => filter.match(item, filter.value))
+
+    return matchesSearch && matchesFilters
+  })
+
+  return {
+    search,
+    setSearch,
+    resetSearch,
+    filteredData
+  }
+}
 
 interface SearchTextboxProps {
   id: string

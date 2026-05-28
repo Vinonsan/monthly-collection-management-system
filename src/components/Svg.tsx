@@ -5,6 +5,8 @@ export type IconType =
   | 'curved-arrow'
   | 'chevron-down'
   | 'search'
+  | 'reset'
+  | 'refresh'
   | 'plus'
   | 'edit'
   | 'delete'
@@ -161,6 +163,73 @@ const SVG = (props: ISVGProps) => {
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
+          />
+        </svg>
+      )
+
+    case 'reset':
+      return (
+        <svg
+          className={ className }
+          width={ width || 16 }
+          height={ height || 16 }
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M4 7a7 7 0 111.8 7"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+          <path
+            d="M4 3v4h4"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )
+
+    case 'refresh':
+      return (
+        <svg
+          className={ className }
+          width={ width || 16 }
+          height={ height || 16 }
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M16 8a6 6 0 00-10.2-3.8L4 6"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M4 3v3h3"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M4 12a6 6 0 0010.2 3.8L16 14"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M16 17v-3h-3"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       )

@@ -47,7 +47,7 @@ const variantTokens: Record<
     solid: {
       bg: 'bg-theme-primary',
       text: 'text-white',
-      border: 'border-theme-primary'
+      border: 'border-2 border-theme-primary'
     },
     outline: {
       bg: 'bg-transparent',
@@ -59,7 +59,7 @@ const variantTokens: Record<
     solid: {
       bg: 'bg-green-600',
       text: 'text-white',
-      border: 'border-green-600'
+      border: 'border-2 border-green-100'
     },
     outline: {
       bg: 'bg-green-50',
@@ -71,7 +71,7 @@ const variantTokens: Record<
     solid: {
       bg: 'bg-red-600',
       text: 'text-white',
-      border: 'border-red-600'
+      border: 'border-2 border-red-100'
     },
     outline: {
       bg: 'bg-red-50',
@@ -83,7 +83,7 @@ const variantTokens: Record<
     solid: {
       bg: 'bg-yellow-600',
       text: 'text-white',
-      border: 'border-yellow-600'
+      border: 'border-2 border-yellow-100'
     },
     outline: {
       bg: 'bg-yellow-50',

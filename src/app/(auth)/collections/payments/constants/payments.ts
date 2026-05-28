@@ -32,7 +32,7 @@ export const emptyScheduleMessageForm: ScheduleMessageForm = {
 }
 
 export const paymentStatusOptions = [
-  { id: 'all', name: 'All statuses' },
+  { id: 'all', name: 'All status' },
   { id: 'Paid', name: 'Paid' },
   { id: 'Partial', name: 'Partial' },
   { id: 'Due', name: 'Due' }

@@ -40,7 +40,8 @@ const sidebarItems: SidebarItem[] = [
     label: 'User Management',
     icon: 'users',
     children: [
-      { id: 'users', label: 'Users', href: '/users' }
+      { id: 'users', label: 'Users', href: '/user-management/users' },
+      { id: 'collectors', label: 'Collectors', href: '/user-management/collectors' }
     ]
   },
   {
@@ -48,7 +49,8 @@ const sidebarItems: SidebarItem[] = [
     label: 'Location Management',
     icon: 'map',
     children: [
-      { id: 'wards', label: 'Wards', href: '/wards' }
+      { id: 'locations', label: 'Locations', href: '/location-management/locations' },
+      { id: 'wards', label: 'Wards', href: '/location-management/wards' }
     ]
   }
 ]

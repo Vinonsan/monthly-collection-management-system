@@ -1,79 +1,75 @@
 'use client'
 
+import { type FormEvent, useState } from 'react'
 import Button from '@/src/components/Button'
 import Input from '@/src/components/Input'
 import Modal from '@/src/components/Modal'
-import Select from '@/src/components/Select'
+import { getFieldError, useFormValidation } from '@/src/lib/hooks/useFormValidation'
+import { emptyLocationForm } from '../constants/locations'
+import { locationSchema } from '../constants/validationSchema'
 import type { LocationForm } from '../types/locations'
 
 interface LocationModalProps {
   open: boolean
-  editingLocationId: number | null
-  form: LocationForm
-  collectorOptions: { id: string; name: string }[]
+  isEditing: boolean
+  initialForm?: LocationForm
   onClose: () => void
-  onSubmit: () => void
-  onFormChange: (_form: LocationForm) => void
+  onSubmit: (_form: LocationForm) => void
 }
-
-const statusOptions = [
-  { id: 'Active', name: 'Active' },
-  { id: 'Inactive', name: 'Inactive' }
-]
 
 const LocationModal = (props: LocationModalProps) => {
   const {
     open,
-    editingLocationId,
-    form,
-    collectorOptions,
+    isEditing,
+    initialForm = emptyLocationForm,
     onClose,
-    onSubmit,
-    onFormChange
+    onSubmit
   } = props
+  const [form, setForm] = useState<LocationForm>(initialForm)
+  const {
+    errors,
+    validateForm,
+    clearErrors
+  } = useFormValidation<LocationForm>(locationSchema)
+
+  const handleClose = () => {
+    setForm(emptyLocationForm)
+    clearErrors()
+    onClose()
+  }
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (!validateForm(form)) return
+
+    onSubmit(form)
+    setForm(emptyLocationForm)
+    clearErrors()
+  }
 
   return (
     <Modal
       open={ open }
-      title={ editingLocationId ? 'Update Location' : 'Add Location' }
-      size="lg"
-      onClose={ onClose }
+      title={ isEditing ? 'Update Location' : 'Add Location' }
+      size="md"
+      onClose={ handleClose }
       footer={ (
-        <>
-          <Button variant="secondary" appearance="outline" onClick={ onClose }>
-            Cancel
-          </Button>
-          <Button onClick={ onSubmit }>
-            { editingLocationId ? 'Update Location' : 'Add Location' }
-          </Button>
-        </>
+        <Button type="submit" form="location-form">
+          { isEditing ? 'Update Location' : 'Add Location' }
+        </Button>
       ) }
     >
-      <div className="grid gap-4 md:grid-cols-2">
-        <Input id="location-code" label="Location Code" type="text" value={ form.locationCode } onChange={ (value) => onFormChange({ ...form, locationCode: String(value) }) } />
-        <Input id="location-name" label="Location Name" type="text" value={ form.locationName } onChange={ (value) => onFormChange({ ...form, locationName: String(value) }) } />
-        <Input id="location-address" label="Address" type="text" value={ form.address } onChange={ (value) => onFormChange({ ...form, address: String(value) }) } />
-        <Select
-          label="Collector"
-          options={ collectorOptions }
-          labelKey="name"
-          valueKey="id"
-          value={ form.collector }
-          onChange={ (value) => onFormChange({ ...form, collector: String(value || '') }) }
-          placeholder="Select collector"
-          searchable
-          position="bottom"
+      <form id="location-form" className="grid gap-4" onSubmit={ handleSubmit }>
+        <Input
+          id="location-name"
+          label="Location Name"
+          type="text"
+          value={ form.locationName }
+          error={ getFieldError(errors, 'locationName') }
+          onChange={ (value) => setForm((current) => ({ ...current, locationName: String(value) })) }
         />
-        <Select
-          label="Status"
-          options={ statusOptions }
-          labelKey="name"
-          valueKey="id"
-          value={ form.status }
-          onChange={ (value) => onFormChange({ ...form, status: value === 'Inactive' ? 'Inactive' : 'Active' }) }
-          position="bottom"
-        />
-      </div>
+      </form>
     </Modal>
   )
 }

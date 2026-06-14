@@ -1,78 +1,87 @@
 'use client'
 
-import Link from 'next/link'
-import type { FormEvent } from 'react'
-import { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Button from '@/src/components/Button'
-import Input from '@/src/components/Input'
 import PhoneInput from '@/src/components/PhoneInput'
-import { authCookieName, devAuth, normalizeDigits } from './authDevConfig'
+import { useZodForm } from '@/src/lib/hooks/useZodForm'
+import {
+  phoneVerificationSchema,
+  type PhoneVerificationForm
+} from '@/src/app/(auth)/login/constants/validationSchema'
+import { devAuth, normalizeDigits, verifiedPhoneStorageKey } from './authDevConfig'
 
 const LoginPage = () => {
   const router = useRouter()
-  const [phone, setPhone] = useState(devAuth.phone)
-  const [password, setPassword] = useState(devAuth.password)
-  const [error, setError] = useState('')
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    const phoneMatches = normalizeDigits(phone) === normalizeDigits(devAuth.phone)
-    const passwordMatches = password === devAuth.password
-
-    if (!phoneMatches || !passwordMatches) {
-      setError('Invalid development login details.')
-      return
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useZodForm<PhoneVerificationForm>(phoneVerificationSchema, {
+    defaultValues: {
+      phone: devAuth.phone
     }
+  })
+  const phone = watch('phone')
 
-    document.cookie = `${authCookieName}=dev-session; path=/; max-age=86400; samesite=lax`
+  const handlePhoneSubmit = (form: PhoneVerificationForm) => {
+    window.sessionStorage.setItem(verifiedPhoneStorageKey, normalizeDigits(form.phone))
     const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/'
-    router.push(redirectTo)
+    router.push(`/verify-otp?redirect=${encodeURIComponent(redirectTo)}`)
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
-      <section className="w-full max-w-[420px] rounded-md border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="mb-7 text-center">
-          <h1 className="text-2xl font-semibold text-slate-950">Login</h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Enter your phone number and password.
-          </p>
-        </div>
-
-        <form className="space-y-5" onSubmit={ handleSubmit }>
-          <PhoneInput
-            id="login-phone"
-            label="Phone number"
-            value={ phone }
-            required
-            onChange={ setPhone }
-          />
-
-          <Input
-            id="login-password"
-            label="Password"
-            type="password"
-            value={ password }
-            required
-            placeholder="Enter password"
-            onChange={ (value) => setPassword(String(value)) }
-          />
-
-          <div className="flex justify-end">
-            <Link href="/forgot-password" className="text-sm font-medium text-theme-primary hover:underline">
-              Forgot password?
-            </Link>
+    <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(135deg,#e8f3f6_0%,#f8fafc_48%,#eef6ff_100%)] px-4 py-8">
+      <form
+        className="w-full max-w-[440px]"
+        onSubmit={ handleSubmit(handlePhoneSubmit) }
+      >
+        <section className="flex min-h-[520px] flex-col rounded-md border border-white/80 bg-white p-6 text-center shadow-[0_20px_50px_rgba(9,60,93,0.14)] sm:p-8">
+          <div className="mx-auto mb-6 flex h-40 w-40 items-center justify-center overflow-hidden rounded-md bg-slate-50 sm:h-48 sm:w-48">
+            <Image
+              src="/auth/otp-verification.png"
+              alt="Phone verification"
+              width={ 480 }
+              height={ 480 }
+              unoptimized
+              className="h-full w-full object-cover"
+            />
           </div>
 
-          <Button type="submit" size="lg" className="w-full">
-            Login
-          </Button>
+          <div className="mb-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-theme-accent">
+              Login
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold text-slate-950">
+              Phone Verification
+            </h1>
+            <p className="mt-2 text-sm text-slate-500">
+              Confirm the phone number registered for this collection account.
+            </p>
+          </div>
 
-          { error && <p className="text-center text-sm text-red-600">{ error }</p> }
-        </form>
-      </section>
+          <div className="mt-auto space-y-4">
+            <PhoneInput
+              id="login-phone"
+              label="Phone number"
+              value={ phone }
+              required
+              error={ errors.phone?.message }
+              onChange={ (value) => {
+                setValue('phone', value, {
+                  shouldDirty: true,
+                  shouldValidate: Boolean(errors.phone)
+                })
+              } }
+            />
+
+            <Button type="submit" size="lg" className="w-full">
+              Send Code
+            </Button>
+          </div>
+        </section>
+      </form>
     </main>
   )
 }

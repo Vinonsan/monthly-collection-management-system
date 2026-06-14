@@ -1,53 +1,53 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import Badge from '@/src/components/Badge'
+import { useState } from 'react'
 import Button from '@/src/components/Button'
 import DataTable, { type DataTableColumn } from '@/src/components/DataTable'
-import SearchTextbox from '@/src/components/SearchTextbox'
+import SearchTextbox, { useSearchTextbox } from '@/src/components/SearchTextbox'
 import SVG from '@/src/components/Svg'
-import { initialCollectors } from '../../../user-management/collectors/constants/collectors'
+import { usePageActions } from '@/src/lib/hooks/usePageActions'
 import { emptyLocationForm, initialLocations } from '../constants/locations'
 import type { LocationForm, LocationRow } from '../types/locations'
+import LocationDeleteModal from './LocationDeleteModal'
 import LocationModal from './LocationModal'
-
-const collectorOptions = initialCollectors.map((collector) => ({
-  id: collector.name,
-  name: collector.name
-}))
 
 const PageChildren = () => {
   const [locationRows, setLocationRows] = useState<LocationRow[]>(initialLocations)
-  const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [editingLocationId, setEditingLocationId] = useState<number | null>(null)
-  const [form, setForm] = useState<LocationForm>(emptyLocationForm)
-
-  const filteredLocations = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase()
-
-    if (!normalizedSearch) return locationRows
-
-    return locationRows.filter((location) =>
-      [location.locationCode, location.locationName, location.address, location.collector, location.status]
-        .join(' ')
-        .toLowerCase()
-        .includes(normalizedSearch)
-    )
-  }, [locationRows, search])
+  const [modalForm, setModalForm] = useState<LocationForm>(emptyLocationForm)
+  const [deletingLocation, setDeletingLocation] = useState<LocationRow | null>(null)
+  const {
+    search,
+    setSearch,
+    resetSearch,
+    filteredData: filteredLocations
+  } = useSearchTextbox(
+    locationRows,
+    [
+      (location) => location.locationName
+    ]
+  )
+  const {
+    resetPage,
+    refreshPage
+  } = usePageActions({
+    onReset: resetSearch,
+    onRefresh: () => {
+      setLocationRows(initialLocations)
+      resetSearch()
+    }
+  })
 
   const openAddModal = () => {
     setEditingLocationId(null)
-    setForm({
-      ...emptyLocationForm,
-      collector: collectorOptions[0]?.id || ''
-    })
+    setModalForm(emptyLocationForm)
     setModalOpen(true)
   }
 
   const openUpdateModal = (location: LocationRow) => {
     setEditingLocationId(location.id)
-    setForm({
+    setModalForm({
       locationCode: location.locationCode,
       locationName: location.locationName,
       address: location.address,
@@ -60,10 +60,25 @@ const PageChildren = () => {
   const closeModal = () => {
     setModalOpen(false)
     setEditingLocationId(null)
-    setForm(emptyLocationForm)
+    setModalForm(emptyLocationForm)
   }
 
-  const handleSubmit = () => {
+  const openDeleteModal = (location: LocationRow) => {
+    setDeletingLocation(location)
+  }
+
+  const closeDeleteModal = () => {
+    setDeletingLocation(null)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (!deletingLocation) return
+
+    setLocationRows((current) => current.filter((location) => location.id !== deletingLocation.id))
+    closeDeleteModal()
+  }
+
+  const handleSubmit = (form: LocationForm) => {
     if (editingLocationId) {
       setLocationRows((current) =>
         current.map((location) => (
@@ -79,29 +94,28 @@ const PageChildren = () => {
   }
 
   const columns: DataTableColumn<LocationRow>[] = [
-    { key: 'locationCode', header: 'Location Code' },
     { key: 'locationName', header: 'Location Name' },
-    { key: 'address', header: 'Address' },
-    { key: 'collector', header: 'Collector' },
-    {
-      key: 'status',
-      header: 'Status',
-      render: (row) => (
-        <Badge variant={ row.status === 'Active' ? 'success' : 'secondary' }>
-          { row.status }
-        </Badge>
-      )
-    },
     {
       key: 'actions',
       header: 'Actions',
-      align: 'right',
       render: (row) => (
-        <div className="flex justify-end gap-2">
-          <Button variant="info" appearance="ghost" size="sm" className="h-9 w-9 px-0" aria-label="Update location" onClick={ () => openUpdateModal(row) }>
+        <div className="flex gap-2">
+          <Button
+            variant="primary"
+            appearance="solid"
+            size="sm"
+            aria-label="Update location"
+            onClick={ () => openUpdateModal(row) }
+          >
             <SVG type="edit" width={ 16 } height={ 16 } />
           </Button>
-          <Button variant="danger" appearance="ghost" size="sm" className="h-9 w-9 px-0" aria-label="Delete location" onClick={ () => setLocationRows((current) => current.filter((location) => location.id !== row.id)) }>
+          <Button
+            variant="danger"
+            appearance="solid"
+            size="sm"
+            aria-label="Delete location"
+            onClick={ () => openDeleteModal(row) }
+          >
             <SVG type="delete" width={ 16 } height={ 16 } />
           </Button>
         </div>
@@ -115,23 +129,44 @@ const PageChildren = () => {
         <div>
           <h1 className="text-2xl font-semibold text-slate-950">Location Management</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Manage collection locations and their assigned collectors.
+            Manage collection locations.
           </p>
         </div>
 
-        <Button className="w-full gap-2 sm:w-auto" onClick={ openAddModal }>
+        <Button variant="primary" className="flex items-center gap-2" onClick={ openAddModal }>
           <SVG type="plus" width={ 17 } height={ 17 } />
           Add Location
         </Button>
       </div>
 
-      <SearchTextbox
-        id="location-search"
-        label="Search locations"
-        value={ search }
-        onChange={ setSearch }
-        placeholder="Search by code, name, address, or collector"
-      />
+      <div className="flex items-end justify-center gap-3">
+        <SearchTextbox
+          id="location-search"
+          label="Search locations"
+          value={ search }
+          onChange={ setSearch }
+          placeholder="Search by location name"
+        />
+
+        <Button
+          variant="secondary"
+          appearance="outline"
+          className="flex items-center gap-2"
+          aria-label="Reset locations"
+          onClick={ resetPage }
+        >
+          <SVG type="reset" width={ 17 } height={ 17 } />
+        </Button>
+        <Button
+          variant="secondary"
+          appearance="outline"
+          className="flex items-center gap-2"
+          aria-label="Refresh locations"
+          onClick={ refreshPage }
+        >
+          <SVG type="refresh" width={ 17 } height={ 17 } />
+        </Button>
+      </div>
 
       <DataTable
         data={ filteredLocations }
@@ -140,17 +175,25 @@ const PageChildren = () => {
         emptyMessage="No locations found."
         pagination
         defaultPageSize={ 5 }
-        pageSizeOptions={ [5, 10] }
+        pageSizeOptions={ [2, 5, 10] }
       />
 
-      <LocationModal
-        open={ modalOpen }
-        editingLocationId={ editingLocationId }
-        form={ form }
-        collectorOptions={ collectorOptions }
-        onClose={ closeModal }
-        onSubmit={ handleSubmit }
-        onFormChange={ setForm }
+      { modalOpen && (
+        <LocationModal
+          key={ editingLocationId ?? 'new-location' }
+          open={ modalOpen }
+          isEditing={ editingLocationId !== null }
+          initialForm={ modalForm }
+          onClose={ closeModal }
+          onSubmit={ handleSubmit }
+        />
+      ) }
+
+      <LocationDeleteModal
+        open={ deletingLocation !== null }
+        locationName={ deletingLocation?.locationName ?? '' }
+        onClose={ closeDeleteModal }
+        onConfirm={ handleDeleteConfirm }
       />
     </div>
   )

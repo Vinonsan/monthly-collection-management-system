@@ -9,7 +9,7 @@ interface AuthRouteLayoutProps {
   children: ReactNode
 }
 
-const plainAuthRoutes = ['/login', '/forgot-password']
+const plainAuthRoutes = ['/login', '/verify-otp', '/forgot-password']
 
 const subscribeToAuthCookie = () => () => undefined
 

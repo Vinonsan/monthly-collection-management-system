@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import StoreProvider from "@/src/lib/redux/StoreProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {children}
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );

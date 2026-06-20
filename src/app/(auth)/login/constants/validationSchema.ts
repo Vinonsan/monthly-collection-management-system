@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { devAuth, normalizeDigits } from '@/src/app/_utils/authDevConfig'
+import { normalizeDigits } from '@/src/lib/auth/utils'
 
 export const phoneVerificationSchema = z.object({
   phone: z
@@ -7,10 +7,7 @@ export const phoneVerificationSchema = z.object({
     .trim()
     .min(1, 'Phone number is required')
     .refine((phone) => normalizeDigits(phone).length === 9, {
-      message: 'Phone number must have 10 digits'
-    })
-    .refine((phone) => normalizeDigits(phone) === normalizeDigits(devAuth.phone), {
-      message: 'Invalid phone number.'
+      message: 'Phone number must have 9 digits'
     })
 })
 

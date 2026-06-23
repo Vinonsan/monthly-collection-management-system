@@ -42,7 +42,9 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm config set only-built-dependencies sharp,unrs-resolver
+          pnpm install
 
       - name: Build application
         run: pnpm build
@@ -89,6 +91,7 @@ jobs:
             git checkout ${{ github.ref_name }}
             git pull origin ${{ github.ref_name }}
 
+            pnpm config set only-built-dependencies sharp,unrs-resolver
             pnpm install
 
             pnpm build

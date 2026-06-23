@@ -42,6 +42,8 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
+        env:
+          PNPM_CONFIG_ONLY_BUILT_DEPENDENCIES: "sharp,unrs-resolver"
         run: pnpm install
 
       - name: Build application
@@ -89,6 +91,7 @@ jobs:
             git checkout ${{ github.ref_name }}
             git pull origin ${{ github.ref_name }}
 
+            export PNPM_CONFIG_ONLY_BUILT_DEPENDENCIES="sharp,unrs-resolver"
             pnpm install
 
             pnpm build

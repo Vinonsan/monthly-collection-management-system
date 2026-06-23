@@ -41,22 +41,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      # 🔥 CRITICAL FIX - Install in 3 steps
+      # 1. முதலில் ஸ்கிரிப்ட்களை இக்னோர் செய்து இன்ஸ்டால் செய்கிறோம்
       - name: Install dependencies (without build scripts)
-        run: |
-          pnpm install --ignore-scripts
+        run: pnpm install --ignore-scripts
 
+      # 2. பில்ட் ஸ்கிரிப்ட்களை அப்ரூவ் செய்கிறோம் (Failsafe ஆக || true சேர்த்துள்ளேன்)
       - name: Approve build scripts for sharp and unrs-resolver
         run: |
-          # Non-interactive approval
-          echo "sharp" | pnpm approve-builds || true
-          echo "unrs-resolver" | pnpm approve-builds || true
-          # Or approve both at once
-          echo -e "sharp\nunrs-resolver" | pnpm approve-builds
+          echo -e "sharp\nunrs-resolver" | pnpm approve-builds || true
 
-      - name: Reinstall with build scripts
-        run: |
-          pnpm install
+      # 3. அப்ரூவ் செய்யப்பட்டவற்றுடன் முழுமையாக இன்ஸ்டால் செய்கிறோம்
+      - name: Reinstall allowed build scripts
+        run: pnpm install
 
       - name: Build application
         run: pnpm build
@@ -81,6 +77,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
@@ -91,10 +88,10 @@ jobs:
             git checkout ${{ github.ref_name }}
             git pull origin ${{ github.ref_name }}
             
-            # 🔥 CRITICAL FIX - Same 3 steps on VPS
+            # VPS-லும் அதே 3 படிகள்
             pnpm install --ignore-scripts
             
-            echo -e "sharp\nunrs-resolver" | pnpm approve-builds
+            echo -e "sharp\nunrs-resolver" | pnpm approve-builds || true
             
             pnpm install
             

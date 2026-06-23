@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24  # நவீன Node 24-க்கு மாற்றப்பட்டுள்ளது
+          node-version: 24
 
       - name: Setup pnpm using Corepack
         run: |
@@ -41,8 +41,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install dependencies
-        run: pnpm install
+      # 🔥 CRITICAL FIX - Install in 3 steps
+      - name: Install dependencies (without build scripts)
+        run: |
+          pnpm install --ignore-scripts
+
+      - name: Approve build scripts for sharp and unrs-resolver
+        run: |
+          # Non-interactive approval
+          echo "sharp" | pnpm approve-builds || true
+          echo "unrs-resolver" | pnpm approve-builds || true
+          # Or approve both at once
+          echo -e "sharp\nunrs-resolver" | pnpm approve-builds
+
+      - name: Reinstall with build scripts
+        run: |
+          pnpm install
 
       - name: Build application
         run: pnpm build
@@ -52,25 +66,13 @@ jobs:
         shell: bash
         run: |
           BRANCH="${{ github.ref_name }}"
-
           case "$BRANCH" in
-            dev)
-              PM2_NAME="mcms-development"
-              ;;
-            main)
-              PM2_NAME="mcms-test"
-              ;;
-            release-uat)
-              PM2_NAME="mcms-uat"
-              ;;
-            release-live)
-              PM2_NAME="mcms-live"
-              ;;
-            *)
-              PM2_NAME="mcms-default"
-              ;;
+            dev) PM2_NAME="mcms-development" ;;
+            main) PM2_NAME="mcms-test" ;;
+            release-uat) PM2_NAME="mcms-uat" ;;
+            release-live) PM2_NAME="mcms-live" ;;
+            *) PM2_NAME="mcms-default" ;;
           esac
-
           echo "PM2_NAME=$PM2_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to VPS
@@ -82,21 +84,26 @@ jobs:
           script: |
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
-
+            
             cd /var/www/monthly-collection-management-system
-
+            
             git fetch --all
             git checkout ${{ github.ref_name }}
             git pull origin ${{ github.ref_name }}
-
+            
+            # 🔥 CRITICAL FIX - Same 3 steps on VPS
+            pnpm install --ignore-scripts
+            
+            echo -e "sharp\nunrs-resolver" | pnpm approve-builds
+            
             pnpm install
-
+            
             pnpm build
-
+            
             if pm2 describe "${{ steps.vars.outputs.PM2_NAME }}" > /dev/null 2>&1; then
               pm2 restart "${{ steps.vars.outputs.PM2_NAME }}"
             else
               pm2 start pnpm --name "${{ steps.vars.outputs.PM2_NAME }}" -- start
             fi
-
+            
             pm2 save

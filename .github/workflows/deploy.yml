@@ -1,0 +1,167 @@
+# =============================================================================
+# Monthly Collection Management System - Deploy Workflow
+# =============================================================================
+# Branch Strategy:
+#   development      -> Development server
+#   main             -> Test server
+#   release-uat      -> UAT server
+#   release-live     -> Production server
+# =============================================================================
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - development
+      - main
+      - release-uat
+      - release-live
+
+jobs:
+  deploy:
+    name: Deploy to ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # -----------------------------------------------------------------------
+      # Checkout the repository
+      # -----------------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Setup Node.js 22
+      # -----------------------------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # -----------------------------------------------------------------------
+      # Setup pnpm
+      # -----------------------------------------------------------------------
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      # -----------------------------------------------------------------------
+      # Cache pnpm store for faster installs
+      # -----------------------------------------------------------------------
+      - name: Get pnpm store directory
+        id: pnpm-store
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # -----------------------------------------------------------------------
+      # Install project dependencies
+      # -----------------------------------------------------------------------
+      - name: Install dependencies
+        run: pnpm install
+
+      # -----------------------------------------------------------------------
+      # Build the Next.js application
+      # -----------------------------------------------------------------------
+      - name: Build application
+        run: pnpm build
+
+      # -----------------------------------------------------------------------
+      # Determine branch-specific environment and PM2 process name
+      # -----------------------------------------------------------------------
+      - name: Set deployment variables
+        id: vars
+        shell: bash
+        run: |
+          BRANCH="${{ github.ref_name }}"
+
+          case "$BRANCH" in
+            development)
+              ENVIRONMENT="development"
+              PM2_NAME="mcms-development"
+              ;;
+            main)
+              ENVIRONMENT="test"
+              PM2_NAME="mcms-test"
+              ;;
+            release-uat)
+              ENVIRONMENT="uat"
+              PM2_NAME="mcms-uat"
+              ;;
+            release-live)
+              ENVIRONMENT="production"
+              PM2_NAME="mcms-live"
+              ;;
+            *)
+              ENVIRONMENT="unknown"
+              PM2_NAME="mcms-$BRANCH"
+              ;;
+          esac
+
+          echo "ENVIRONMENT=$ENVIRONMENT" >> "$GITHUB_OUTPUT"
+          echo "PM2_NAME=$PM2_NAME" >> "$GITHUB_OUTPUT"
+
+      # -----------------------------------------------------------------------
+      # Deploy to VPS via SSH
+      # -----------------------------------------------------------------------
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Navigate to project directory or clone if not present
+            if [ ! -d "/var/www/monthly-collection-management-system" ]; then
+              echo "📦 Repository not found on server. Cloning..."
+              mkdir -p /var/www
+              git clone --branch ${{ github.ref_name }} \
+                https://github.com/${{ github.repository }}.git \
+                /var/www/monthly-collection-management-system
+            fi
+
+            # Enter project directory
+            cd /var/www/monthly-collection-management-system
+
+            # Checkout and pull latest changes for the current branch
+            echo "🔄 Checking out branch: ${{ github.ref_name }}"
+            git fetch --all
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+
+            # Export pnpm home so the binary is available after SSH login
+            export PNPM_HOME="$HOME/.local/share/pnpm"
+            export PATH="$PNPM_HOME:$PATH"
+
+            # Install dependencies
+            echo "📦 Installing dependencies..."
+            pnpm install
+
+            # Build the application
+            echo "🔨 Building application..."
+            pnpm build
+
+            # Restart or start the PM2 process
+            echo "🚀 Deploying environment: ${{ steps.vars.outputs.ENVIRONMENT }}"
+            echo "🚀 PM2 process name: ${{ steps.vars.outputs.PM2_NAME }}"
+
+            if pm2 describe "${{ steps.vars.outputs.PM2_NAME }}" > /dev/null 2>&1; then
+              echo "♻️ Restarting existing PM2 process: ${{ steps.vars.outputs.PM2_NAME }}"
+              pm2 restart "${{ steps.vars.outputs.PM2_NAME }}"
+            else
+              echo "✅ Starting new PM2 process: ${{ steps.vars.outputs.PM2_NAME }}"
+              pm2 start pnpm --name "${{ steps.vars.outputs.PM2_NAME }}" -- start
+            fi
+
+            # Save PM2 process list
+            echo "💾 Saving PM2 process list..."
+            pm2 save

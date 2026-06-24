@@ -5,14 +5,14 @@ import { useState } from 'react'
 import Button from '@/src/components/Button'
 import Input from '@/src/components/Input'
 import PhoneInput from '@/src/components/PhoneInput'
-import { devAuth, normalizeDigits } from './authDevConfig'
+import { normalizeDigits } from '@/src/lib/auth/utils'
 
 const ForgotPasswordPage = () => {
   const [step, setStep] = useState<'phone' | 'otp' | 'password'>('phone')
-  const [phone, setPhone] = useState(devAuth.phone)
-  const [otp, setOtp] = useState(devAuth.otp)
-  const [password, setPassword] = useState(devAuth.password)
-  const [confirmPassword, setConfirmPassword] = useState(devAuth.password)
+  const [phone, setPhone] = useState('')
+  const [otp, setOtp] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
 
   const handleOtpChange = (value: string) => {
@@ -21,7 +21,7 @@ const ForgotPasswordPage = () => {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
-      <section className="w-full max-w-[420px] rounded-md border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="w-full max-w-105 rounded-md border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-7 text-center">
           <h1 className="text-2xl font-semibold text-slate-950">Forgot password</h1>
           <p className="mt-2 text-sm text-slate-500">
@@ -59,8 +59,8 @@ const ForgotPasswordPage = () => {
             className="space-y-5"
             onSubmit={ (event) => {
               event.preventDefault()
-              if (normalizeDigits(otp) !== devAuth.otp) {
-                setError('Invalid development OTP.')
+              if (!otp || otp.length < 6) {
+                setError('Invalid OTP.')
                 return
               }
               setError('')

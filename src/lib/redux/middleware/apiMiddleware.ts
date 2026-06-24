@@ -30,6 +30,29 @@ const getErrorMessage = (payload: unknown) => {
   return payload.data?.message ?? payload.data?.error ?? "Something went wrong";
 };
 
+const isAuthEndpoint = (endpointName?: string) => {
+  return endpointName === "sendOtp" || endpointName === "login";
+};
+
+const getEndpointName = (action: unknown) => {
+  if (typeof action !== "object" || action === null || !("meta" in action)) {
+    return undefined;
+  }
+
+  const meta = action.meta;
+  if (typeof meta !== "object" || meta === null || !("arg" in meta)) {
+    return undefined;
+  }
+
+  const arg = meta.arg;
+  if (typeof arg !== "object" || arg === null || !("endpointName" in arg)) {
+    return undefined;
+  }
+
+  const endpointName = arg.endpointName;
+  return typeof endpointName === "string" ? endpointName : undefined;
+};
+
 export const apiMiddleware: Middleware = (store) => (next) => (action) => {
   if (isPending(action)) {
     store.dispatch(setGlobalLoading(true));
@@ -41,10 +64,15 @@ export const apiMiddleware: Middleware = (store) => (next) => (action) => {
 
   if (isRejectedWithValue(action)) {
     const payload = action.payload;
+    const endpointName = getEndpointName(action);
     store.dispatch(setGlobalLoading(false));
     store.dispatch(setGlobalError(getErrorMessage(payload)));
 
-    if (isErrorPayload(payload) && payload.status === 401) {
+    if (
+      isErrorPayload(payload) &&
+      payload.status === 401 &&
+      !isAuthEndpoint(endpointName)
+    ) {
       store.dispatch(clearAuthState());
       removeToken();
       redirectToLogin();

@@ -41,16 +41,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      # 1. முதலில் ஸ்கிரிப்ட்களை இக்னோர் செய்து இன்ஸ்டால் செய்கிறோம்
       - name: Install dependencies (without build scripts)
         run: pnpm install --ignore-scripts
-
-      # 2. பில்ட் ஸ்கிரிப்ட்களை அப்ரூவ் செய்கிறோம் (Failsafe ஆக || true சேர்த்துள்ளேன்)
       - name: Approve build scripts for sharp and unrs-resolver
         run: |
           echo -e "sharp\nunrs-resolver" | pnpm approve-builds || true
 
-      # 3. அப்ரூவ் செய்யப்பட்டவற்றுடன் முழுமையாக இன்ஸ்டால் செய்கிறோம்
       - name: Reinstall allowed build scripts
         run: pnpm install
 

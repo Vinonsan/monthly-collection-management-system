@@ -4,23 +4,28 @@ import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Button from '@/src/components/Button'
+import { saveToken } from '@/src/lib/auth'
 import { useZodForm } from '@/src/lib/hooks/useZodForm'
+import { useLoginMutation } from '@/src/lib/redux/api/auth/api'
+import { useAppDispatch } from '@/src/lib/redux/hooks'
+import { setCredentials } from '@/src/lib/redux/slices/auth'
 import {
   otpVerificationSchema,
   type OtpVerificationForm
 } from '@/src/app/(auth)/verify-otp/constants/validationSchema'
+import { normalizeDigits } from '@/src/lib/auth/utils'
 import {
-  devAuth,
-  normalizeDigits,
-  saveDevAuthSession,
-  verifiedPhoneStorageKey
-} from './authDevConfig'
+  OTP_TOKEN_STORAGE_KEY,
+  VERIFIED_PHONE_STORAGE_KEY
+} from '@/src/lib/auth/constants'
 
 const otpSlots = Array.from({ length: 6 })
 
 const VerifyOtpPage = () => {
   const router = useRouter()
+  const dispatch = useAppDispatch()
   const otpInputRef = useRef<HTMLInputElement>(null)
+  const [login, { isLoading }] = useLoginMutation()
   const {
     handleSubmit,
     setValue,
@@ -34,9 +39,10 @@ const VerifyOtpPage = () => {
   const otp = watch('otp')
 
   useEffect(() => {
-    const verifiedPhone = window.sessionStorage.getItem(verifiedPhoneStorageKey)
+    const verifiedPhone = window.sessionStorage.getItem(VERIFIED_PHONE_STORAGE_KEY)
+    const otpToken = window.sessionStorage.getItem(OTP_TOKEN_STORAGE_KEY)
 
-    if (verifiedPhone !== normalizeDigits(devAuth.phone)) {
+    if (!verifiedPhone || !otpToken) {
       router.replace('/login')
       return
     }
@@ -44,28 +50,53 @@ const VerifyOtpPage = () => {
     window.setTimeout(() => otpInputRef.current?.focus(), 0)
   }, [router])
 
-  const handleOtpSubmit = () => {
-    const verifiedPhone = window.sessionStorage.getItem(verifiedPhoneStorageKey)
+  const handleOtpSubmit = async (form: OtpVerificationForm) => {
+    const verifiedPhone = window.sessionStorage.getItem(VERIFIED_PHONE_STORAGE_KEY)
+    const otpToken = window.sessionStorage.getItem(OTP_TOKEN_STORAGE_KEY)
 
-    if (verifiedPhone !== normalizeDigits(devAuth.phone)) {
+    if (!verifiedPhone || !otpToken) {
       router.replace('/login')
       return
     }
 
-    window.sessionStorage.removeItem(verifiedPhoneStorageKey)
-    saveDevAuthSession()
+    try {
+      const response = await login({
+        phone: verifiedPhone,
+        otp: form.otp,
+        otpToken
+      }).unwrap()
 
-    const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/'
-    router.push(redirectTo)
+      if (!response.success || !response.token) {
+        return
+      }
+
+      saveToken(response.token, { expiresAt: response.expiresAt })
+      dispatch(
+        setCredentials({
+          token: response.token,
+          expiresAt: response.expiresAt
+            ? Number(response.expiresAt)
+            : undefined
+        })
+      )
+
+      window.sessionStorage.removeItem(VERIFIED_PHONE_STORAGE_KEY)
+      window.sessionStorage.removeItem(OTP_TOKEN_STORAGE_KEY)
+
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/'
+      router.push(redirectTo)
+    } catch {
+      // Global API middleware surfaces the error message.
+    }
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(135deg,#e8f3f6_0%,#f8fafc_48%,#eef6ff_100%)] px-4 py-8">
       <form
-        className="w-full max-w-[440px]"
+        className="w-full max-w-110"
         onSubmit={ handleSubmit(handleOtpSubmit) }
       >
-        <section className="flex min-h-[520px] flex-col rounded-md border border-white/80 bg-white p-6 text-center shadow-[0_20px_50px_rgba(9,60,93,0.14)] sm:p-8">
+        <section className="flex min-h-130 flex-col rounded-md border border-white/80 bg-white p-6 text-center shadow-[0_20px_50px_rgba(9,60,93,0.14)] sm:p-8">
           <div className="mx-auto mb-6 flex h-40 w-40 items-center justify-center overflow-hidden rounded-md bg-slate-50 sm:h-48 sm:w-48">
             <Image
               src="/auth/otp-verification.png"
@@ -138,8 +169,8 @@ const VerifyOtpPage = () => {
               ) }
             </div>
 
-            <Button type="submit" size="lg" className="w-full">
-              Verify Code
+            <Button type="submit" size="lg" className="w-full" disabled={ isLoading }>
+              { isLoading ? 'Verifying...' : 'Verify Code' }
             </Button>
 
             <Button
@@ -148,7 +179,8 @@ const VerifyOtpPage = () => {
               appearance="ghost"
               className="w-full"
               onClick={ () => {
-                window.sessionStorage.removeItem(verifiedPhoneStorageKey)
+                window.sessionStorage.removeItem(VERIFIED_PHONE_STORAGE_KEY)
+                window.sessionStorage.removeItem(OTP_TOKEN_STORAGE_KEY)
                 router.push('/login')
               } }
             >

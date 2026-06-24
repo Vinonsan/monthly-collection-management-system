@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useSyncExternalStore } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { authCookieName } from '@/src/app/_utils/authDevConfig'
+import { getToken, isTokenExpired } from '@/src/lib/auth'
 import LayoutChildren from './LayoutChildren'
 
 interface AuthRouteLayoutProps {
@@ -11,11 +11,12 @@ interface AuthRouteLayoutProps {
 
 const plainAuthRoutes = ['/login', '/verify-otp', '/forgot-password']
 
-const subscribeToAuthCookie = () => () => undefined
+const subscribeToAuth = () => () => undefined
 
-const getAuthCookieSnapshot = () => document.cookie
-  .split(';')
-  .some((cookie) => cookie.trim().startsWith(`${authCookieName}=`))
+const getAuthSnapshot = () => {
+  const token = getToken()
+  return Boolean(token) && !isTokenExpired()
+}
 
 const getServerAuthSnapshot = () => false
 
@@ -25,8 +26,8 @@ const AuthRouteLayout = (props: AuthRouteLayoutProps) => {
   const router = useRouter()
   const isPlainAuthRoute = plainAuthRoutes.includes(pathname)
   const isAuthenticated = useSyncExternalStore(
-    subscribeToAuthCookie,
-    getAuthCookieSnapshot,
+    subscribeToAuth,
+    getAuthSnapshot,
     getServerAuthSnapshot
   )
 

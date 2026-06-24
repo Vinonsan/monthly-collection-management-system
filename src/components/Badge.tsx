@@ -47,7 +47,7 @@ const variantTokens: Record<
     solid: {
       bg: 'bg-theme-primary',
       text: 'text-white',
-      border: 'border-theme-primary'
+      border: 'border-2 border-theme-primary'
     },
     outline: {
       bg: 'bg-transparent',
@@ -57,9 +57,9 @@ const variantTokens: Record<
   },
   success: {
     solid: {
-      bg: 'bg-green-600',
+      bg: 'bg-emerald-800',
       text: 'text-white',
-      border: 'border-green-600'
+      border: 'border-2 border-emerald-100'
     },
     outline: {
       bg: 'bg-green-50',
@@ -69,9 +69,9 @@ const variantTokens: Record<
   },
   danger: {
     solid: {
-      bg: 'bg-red-600',
+      bg: 'bg-red-800',
       text: 'text-white',
-      border: 'border-red-600'
+      border: 'border-2 border-red-100'
     },
     outline: {
       bg: 'bg-red-50',
@@ -83,7 +83,7 @@ const variantTokens: Record<
     solid: {
       bg: 'bg-yellow-600',
       text: 'text-white',
-      border: 'border-yellow-600'
+      border: 'border-2 border-yellow-100'
     },
     outline: {
       bg: 'bg-yellow-50',

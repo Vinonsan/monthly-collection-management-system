@@ -29,10 +29,10 @@ const sizeStyles: Record<ButtonSize, string> = {
 
 const variantStyles: Record<ButtonVariant, Record<ButtonAppearance, string>> = {
   primary: {
-    solid: 'bg-theme-primary text-white border-theme-primary hover:bg-blue-700',
+    solid: 'bg-theme-primary text-white border-theme-primary hover:bg-theme-primary/90',
     outline:
-      'bg-transparent text-theme-primary border-theme-primary hover:bg-blue-50',
-    ghost: 'border-transparent text-theme-primary hover:bg-blue-50'
+      'bg-transparent text-theme-primary border-theme-primary hover:bg-theme-primary/10',
+    ghost: 'border-transparent text-theme-primary hover:bg-theme-primary/80'
   },
   success: {
     solid: 'bg-green-600 text-white border-green-600 hover:bg-green-700',
@@ -42,7 +42,7 @@ const variantStyles: Record<ButtonVariant, Record<ButtonAppearance, string>> = {
       'border-transparent text-green-700 hover:bg-green-50'
   },
   danger: {
-    solid: 'bg-red-600 text-white border-red-600 hover:bg-red-700',
+    solid: 'bg-red-800 text-white  border-red-100 hover:bg-red-700',
     outline:
       'bg-transparent text-red-700 border-red-300 hover:bg-red-50',
     ghost:
@@ -83,7 +83,7 @@ const Button = (props: ButtonProps) => {
   } = props
 
   const baseClasses =
-    'inline-flex items-center justify-center rounded-md border font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/30 disabled:cursor-not-allowed disabled:opacity-50'
+    'inline-flex items-center justify-center rounded-md border font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/30 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer'
 
   return (
     <button

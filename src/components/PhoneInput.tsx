@@ -34,8 +34,9 @@ const labelSizeStyles: Record<PhoneInputSize, string> = {
   xl: 'text-lg'
 }
 
+// 9 digits மட்டும் அனுமதிக்க (Validation-உடன் பொருந்த)
 const formatPhone = (value: string) => {
-  const digits = value.replace(/\D/g, '').slice(0, 10)
+  const digits = value.replace(/\D/g, '').slice(0, 9) // 👈 9 digits மட்டும்
 
   if (digits.length <= 3) return digits
   if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`
@@ -63,7 +64,9 @@ const PhoneInput = (props: PhoneInputProps) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (disabled || readOnly) return
 
-    onChange(formatPhone(event.target.value))
+    const rawValue = event.target.value
+    const formatted = formatPhone(rawValue)
+    onChange(formatted)
   }
 
   const baseInputClasses =
@@ -75,36 +78,36 @@ const PhoneInput = (props: PhoneInputProps) => {
 
   return (
     <div className="w-full">
-      { label && (
+      {label && (
         <label
-          htmlFor={ id }
-          className={ `mb-1 block ${labelSizeStyles[size]} font-medium text-gray-700` }
+          htmlFor={id}
+          className={`mb-1 block text-left ${labelSizeStyles[size]} font-medium text-gray-700`} // 👈 text-left add
         >
-          { label }
-          { required && <span className="ml-1 text-red-500">*</span> }
+          {label}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
-      ) }
+      )}
 
-      <div className={ `${wrapperClasses} ${errorClasses} ${disabledClasses} ${className}` }>
+      <div className={`${wrapperClasses} ${errorClasses} ${disabledClasses} ${className}`}>
         <span className="border-r border-gray-200 px-3 text-sm font-medium text-gray-600">
-          { countryCode }
+          {countryCode}
         </span>
         <input
-          id={ id }
+          id={id}
           type="tel"
           inputMode="tel"
-          value={ value }
-          placeholder={ placeholder }
-          disabled={ disabled }
-          readOnly={ readOnly }
-          required={ required }
-          onChange={ handleChange }
-          onBlur={ onBlur }
-          className={ `${baseInputClasses} ${sizeStyles[size]}` }
+          value={value}
+          placeholder={placeholder}
+          disabled={disabled}
+          readOnly={readOnly}
+          required={required}
+          onChange={handleChange}
+          onBlur={onBlur}
+          className={`${baseInputClasses} ${sizeStyles[size]}`}
         />
       </div>
 
-      { error && <p className="mt-1 text-sm text-red-600">{ error }</p> }
+      {error && <p className="mt-1 text-left text-sm text-red-600">{error}</p>} {/* 👈 text-left add */}
     </div>
   )
 }

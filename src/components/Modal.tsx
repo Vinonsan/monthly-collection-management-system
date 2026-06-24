@@ -63,24 +63,23 @@ const Modal = (props: ModalProps) => {
         aria-modal="true"
         className={ `relative z-10 w-full rounded-md bg-white shadow-xl ${sizeStyles[size]}` }
       >
-        <header className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+        <header className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
           <h2 className="text-lg font-semibold text-gray-950">{ title }</h2>
           <Button
-            variant="secondary"
-            appearance="ghost"
+            variant="primary"
+            appearance="solid"
             size="sm"
-            className="h-16 w-16 px-0"
             aria-label="Close modal"
             onClick={ onClose }
           >
-            <SVG type="close" width={ 32 } height={ 32 } />
+            <SVG type="close"  />
           </Button>
         </header>
 
-        <div className="px-5 py-4 text-sm leading-6 text-gray-700">{ children }</div>
+        <div className="px-4 py-6 text-base leading-6 text-gray-700">{ children }</div>
 
         { footer && (
-          <footer className="flex justify-end gap-3 border-t border-gray-200 px-5 py-4">
+          <footer className="flex justify-end gap-3 border-t border-gray-200 px-4 py-2">
             { footer }
           </footer>
         ) }

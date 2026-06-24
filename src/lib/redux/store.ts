@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { baseApi } from "./api/base/api";
+import "./api/auth/api";
 import "./api/collection/api";
 import "./api/location/api";
 import "./api/user/api";

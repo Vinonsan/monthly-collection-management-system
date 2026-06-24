@@ -4,7 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import SVG, { type IconType } from '@/src/components/Svg'
-import { authCookieName } from '@/src/app/_utils/authDevConfig'
+import { removeToken } from '@/src/lib/auth'
+import { useAppDispatch } from '@/src/lib/redux/hooks'
+import { clearAuthState } from '@/src/lib/redux/slices/auth'
 
 interface SidebarItem {
   id: string
@@ -66,6 +68,7 @@ const isActivePath = (item: SidebarItem, pathname: string): boolean => {
 const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
   const pathname = usePathname()
   const router = useRouter()
+  const dispatch = useAppDispatch()
 
   const activeParentIds = sidebarItems
     .filter((item) => isActivePath(item, pathname))
@@ -91,7 +94,8 @@ const Sidebar = ({ isOpen = false, onClose }: SidebarProps) => {
   }
 
   const handleLogout = () => {
-    document.cookie = `${authCookieName}=; path=/; max-age=0; samesite=lax`
+    removeToken()
+    dispatch(clearAuthState())
     router.push('/login')
   }
 

@@ -11,9 +11,21 @@ import { clearAuthState } from "../../slices/auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
+const getRequestUrl = (args: string | FetchArgs) => {
+  return typeof args === "string" ? args : args.url;
+};
+
+const isPublicAuthEndpoint = (args: string | FetchArgs) => {
+  return getRequestUrl(args).startsWith("auth/");
+};
+
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: API_BASE_URL,
-  prepareHeaders: (headers) => {
+  prepareHeaders: (headers, { endpoint }) => {
+    if (endpoint === "sendOtp" || endpoint === "login") {
+      return headers;
+    }
+
     const token = getToken();
 
     if (token) {
@@ -40,14 +52,16 @@ const baseQueryWithAuth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  if (isTokenExpired()) {
+  const isPublicAuth = isPublicAuthEndpoint(args);
+
+  if (!isPublicAuth && isTokenExpired()) {
     handleExpiredSession(api.dispatch);
     return { error: createAuthError() };
   }
 
   const result = await rawBaseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401) {
+  if (!isPublicAuth && result.error?.status === 401) {
     handleExpiredSession(api.dispatch);
   }
 
